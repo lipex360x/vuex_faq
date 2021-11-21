@@ -3,39 +3,70 @@ import { faqCategories } from '@/utils/db.json'
 
 export default createStore({
   state: {
-    card: 'CardMain',
-    questions: [],
-    questionCategory: []
+    categories: [],
+    card: {
+      prevCard: null,
+      prevItemId: null,
+      currentCard: 'CardMain',
+      currentItemId: null
+    }
   },
 
   mutations: {
-    SET_QUESTIONS(state, questions) {
-      state.questions = questions
+    SET_CATEGORIES(state, categories) {
+      state.categories = categories
     },
 
-    SET_QUESTIONS_CATEGORY(state, id) {
-      state.questionCategory = []
-      const questionIndex = state.questions.findIndex(
-        (question) => question.id === id
-      )
-      const { questions } = state.questions[questionIndex]
-      state.questionCategory = questions
-    },
-
-    SET_CARD_VIEW(state, card) {
+    SET_CARD(state, card) {
       state.card = card
     }
   },
 
   actions: {
-    fetchQuestions(context) {
-      context.commit('SET_QUESTIONS', faqCategories)
+    fetchCategories(context) {
+      context.commit('SET_CATEGORIES', faqCategories)
     },
-    fetchQuestionByCategory(context, id) {
-      context.commit('SET_QUESTIONS_CATEGORY', id)
+
+    getFaqsCard(context, params) {
+      const request = {
+        prevCard: 'CardMain',
+        prevItemId: params.prevItemId | null,
+        currentCard: params.nextCard,
+        currentItemId: params.nextItemId
+      }
+
+      context.commit('SET_CARD', request)
     },
-    setCard(context, card) {
-      context.commit('SET_CARD_VIEW', card)
+
+    getAnswer(context, params) {
+      const request = {
+        prevCard: 'CardFaq',
+        prevItemId: params.categoryId,
+        currentCard: 'CardAnswer',
+        currentItemId: params
+      }
+      context.commit('SET_CARD', request)
+    },
+
+    backFaq(context) {
+      const request = {
+        prevCard: 'CardMain',
+        prevItemId: null,
+        currentCard: 'CardFaq',
+        currentItemId: this.getters.$cardView.currentItemId.categoryId
+      }
+
+      context.commit('SET_CARD', request)
+    },
+
+    backHome(context) {
+      const request = {
+        prevCard: null,
+        prevItemId: null,
+        currentCard: 'CardMain',
+        currentItemId: null
+      }
+      context.commit('SET_CARD', request)
     }
   },
 
@@ -43,12 +74,24 @@ export default createStore({
     $cardView(state) {
       return state.card
     },
-    $getQuestions(state) {
-      return state.questions
+    $getCategories(state) {
+      return state.categories
     },
-    $getQuestionsCategory(state) {
-      console.log(state.questionCategory)
-      return state.questionCategory
+    $getFaqs(state) {
+      const currentItemId = state.card.currentItemId
+      const faqs = state.categories.find(
+        (category) => category.id === currentItemId
+      )
+      return faqs
+    },
+    $getAnswers(state) {
+      const { categoryId, faqId } = state.card.currentItemId
+      const getFaqs = state.categories.find(
+        (category) => category.id === categoryId
+      )
+      const getFaq = getFaqs.questions.find((faq) => faq.id === faqId)
+      console.log(getFaq)
+      return getFaq
     }
   }
 })

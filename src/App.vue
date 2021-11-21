@@ -21,11 +21,11 @@ import 'animate.css'
 export default {
   components: { CardMain, CardFaq, CardAnswer },
   created() {
-    this.$store.dispatch('fetchQuestions')
+    this.$store.dispatch('fetchCategories')
   },
   computed: {
     $cardView() {
-      return this.$store.getters.$cardView
+      return this.$store.getters.$cardView.currentCard
     }
   }
 }

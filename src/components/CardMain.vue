@@ -11,9 +11,9 @@
 
     <main>
       <li
-        v-for="category in categories"
+        v-for="category in $getCategories"
         :key="category.id"
-        @click="setCategory(category.id), setCard()"
+        @click="getQuestions(category.id)"
       >
         <img :src="require(`@/assets/images/${category.icon}`)" />
         {{ category.title }}
@@ -24,31 +24,29 @@
 
 <script>
 export default {
-  data() {
-    return {
-      categories: []
+  computed: {
+    $getCategories() {
+      return this.$store.getters.$getCategories
     }
   },
-  created() {
-    this.categories = this.$store.getters.$getQuestions
-  },
+
   methods: {
     setCategory(id) {
       this.$store.dispatch('fetchQuestionByCategory', id)
     },
 
-    setCard() {
-      this.$store.dispatch('setCard', 'CardFaq')
+    getQuestions(categoryId) {
+      const params = {
+        nextCard: 'CardFaq',
+        nextItemId: categoryId
+      }
+      this.$store.dispatch('getFaqsCard', params)
     }
   }
 }
 </script>
 
 <style scoped>
-section {
-  color: #f5f6f8;
-}
-
 header {
   display: flex;
   flex-direction: column;
@@ -69,11 +67,10 @@ header div {
 }
 
 header div h1 {
-  font: normal normal bold 20px Lato;
   margin-bottom: 5px;
 }
 header div p {
-  font: normal normal normal 16px Lato;
+  font-size: 16px;
 }
 
 main {
@@ -82,7 +79,6 @@ main {
 }
 
 main li {
-  list-style: none;
   display: grid;
   grid-template-columns: auto 1fr;
   grid-gap: 1.7rem;
@@ -93,10 +89,11 @@ main li {
   font-size: 16px;
   margin-top: 2px;
   transition: background-color 0.3s ease-in-out;
+  border-radius: 5px;
 }
 
 main li:hover {
-  background: #3f4452b3 0% 0% no-repeat padding-box;
+  background: #3f4452;
 }
 
 main li img {
